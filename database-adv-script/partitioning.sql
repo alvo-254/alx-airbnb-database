@@ -1,23 +1,36 @@
-# 📈 Partitioning Performance Report — Task 5
+-- Step 1: Backup the original bookings table
+ALTER TABLE bookings RENAME TO bookings_old;
 
-## 🧠 Objective
+-- Step 2: Create the new partitioned bookings table based on start_date
+CREATE TABLE bookings (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    property_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    status VARCHAR(50)
+) PARTITION BY RANGE (start_date);
 
-The goal was to implement table partitioning on the `bookings` table by `start_date` to improve performance when querying large datasets, especially for date-range filters.
+-- Step 3: Create partitions (example: quarterly partitions for 2023)
+CREATE TABLE bookings_2023_q1 PARTITION OF bookings
+    FOR VALUES FROM ('2023-01-01') TO ('2023-04-01');
 
----
+CREATE TABLE bookings_2023_q2 PARTITION OF bookings
+    FOR VALUES FROM ('2023-04-01') TO ('2023-07-01');
 
-## ⚙️ What Was Done
+CREATE TABLE bookings_2023_q3 PARTITION OF bookings
+    FOR VALUES FROM ('2023-07-01') TO ('2023-10-01');
 
-- The original `bookings` table was renamed and backed up.
-- A new `bookings` table was created and partitioned by `RANGE (start_date)` into quarterly partitions.
-- Existing data was copied into the new structure.
-- A performance test was run using `EXPLAIN ANALYZE` to evaluate date-range query execution.
+CREATE TABLE bookings_2023_q4 PARTITION OF bookings
+    FOR VALUES FROM ('2023-10-01') TO ('2024-01-01');
 
----
+-- Step 4: Migrate data from the old table into the new partitioned table
+INSERT INTO bookings (id, user_id, property_id, start_date, end_date, status)
+SELECT id, user_id, property_id, start_date, end_date, status
+FROM bookings_old;
 
-## 📊 Observations
-
-- **Before partitioning**: The query scanned the entire `bookings` table, leading to higher cost and longer execution time.
-- **After partitioning**: The planner accessed only the relevant partition(s) based on the `start_date` range. This **reduced I/O, CPU time, and improved query speed**.
-
-### Sample Result from EXPLAIN ANALYZE:
+-- Step 5: Test performance with EXPLAIN ANALYZE on a filtered query
+EXPLAIN ANALYZE
+SELECT *
+FROM bookings
+WHERE start_date BETWEEN '2023-04-15' AND '2023-05-15';
