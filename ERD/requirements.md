@@ -126,4 +126,4 @@ Each message has a sender and a recipient, both are users.
 
 ## ER Diagram
 
-![ER Diagram](https://github.com/Ricokamau/alx-airbnb-database/blob/main/ERD/Images/ERD.jpeg?raw=true)
+![ER Diagram](https://github.com/alvo-254/alx-airbnb-database/blob/main/ERD/ER.png?raw=true)
