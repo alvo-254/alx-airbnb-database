@@ -72,3 +72,33 @@ WHERE
         HAVING 
             AVG(rating) > 4.0
     );
+
+# 📘 Task 2: Apply Aggregations and Window Functions
+
+This task demonstrates how to use SQL aggregation and window functions to analyze Airbnb data. Aggregations help summarize data, while window functions provide advanced analytics like ranking and row numbering without collapsing results.
+
+## 🧠 Objective
+
+- Use `COUNT()` and `GROUP BY` to summarize data (total bookings per user).
+- Use window functions like `RANK()` or `ROW_NUMBER()` to rank results based on aggregated metrics.
+
+---
+
+## 🔗 Queries Implemented
+
+### 1. 🧮 Total Bookings per User — Aggregation with `COUNT()`
+
+```sql
+SELECT 
+    users.id AS user_id,
+    users.name,
+    COUNT(bookings.id) AS total_bookings
+FROM 
+    users
+JOIN 
+    bookings ON users.id = bookings.user_id
+GROUP BY 
+    users.id, users.name
+ORDER BY 
+    total_bookings DESC;
+
